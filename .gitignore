@@ -1,0 +1,10 @@
+.next
+node_modules
+out
+dist
+.env
+.env.local
+*.log
+.pnpm-store
+tsconfig.tsbuildinfo
+npm
