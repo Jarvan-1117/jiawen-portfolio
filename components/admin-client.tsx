@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import ImageCropDialog, { type CropPreset } from "@/components/image-crop-dialog";
 import {
   slugify,
   type ProjectRow,
@@ -478,8 +479,8 @@ function ProjectEditor({
         <Checkbox label="Visible on website" checked={editing.visible !== false} onChange={(value) => update({ visible: value })} />
         <Checkbox label="Featured project" checked={Boolean(editing.featured)} onChange={(value) => update({ featured: value })} />
       </div>
-      <ImageDrop label="Cover image" value={editing.cover_image || ""} onUpload={async (file) => update({ cover_image: await uploadImage(file) })} />
-      <ImageDrop label="Gallery images" multiple value={(editing.gallery_images || []).join(", ")} onUpload={async (file) => update({ gallery_images: [...(editing.gallery_images || []), await uploadImage(file)] })} />
+      <ImageDrop label="Cover image" value={editing.cover_image || ""} crop={{ aspect: 16 / 9, width: 1600, height: 900 }} onUpload={async (file) => update({ cover_image: await uploadImage(file) })} />
+      <ImageDrop label="Gallery images" multiple value={(editing.gallery_images || []).join(", ")} crop={{ aspect: 16 / 10, width: 1600, height: 1000 }} onUpload={async (file) => update({ gallery_images: [...(editing.gallery_images || []), await uploadImage(file)] })} />
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         {["problem", "dataset", "approach", "models", "evaluation", "results", "learned"].map((key) => (
           <TextArea key={key} label={key} value={String(editing[key as keyof ProjectRow] || "")} onChange={(value) => update({ [key]: value } as Partial<ProjectRow>)} />
@@ -543,7 +544,7 @@ function ContentEditor({
       <TextArea label="Skills section title" value={content.skillsTitle} onChange={(value) => update("skillsTitle", value)} />
       <TextArea label="Education section title" value={content.educationTitle} onChange={(value) => update("educationTitle", value)} />
       <TextArea label="Contact title" value={content.contactTitle} onChange={(value) => update("contactTitle", value)} />
-      <ImageDrop label="Homepage / Hero image" value={content.heroImage} onUpload={async (file) => update("heroImage", await uploadImage(file))} />
+      <ImageDrop label="Homepage / Hero image" value={content.heroImage} crop={{ aspect: 4 / 5, width: 1200, height: 1500 }} onUpload={async (file) => update("heroImage", await uploadImage(file))} />
       <TextArea label="Hero image alt text" value={content.heroImageCaption} onChange={(value) => update("heroImageCaption", value)} />
 
       <div className="mt-8 border-t border-white/10 pt-6">
@@ -624,15 +625,32 @@ function Checkbox({ label, checked, onChange }: { label: string; checked: boolea
   );
 }
 
-function ImageDrop({ label, value, multiple = false, onUpload }: { label: string; value: string; multiple?: boolean; onUpload: (file: File) => Promise<void> }) {
+function ImageDrop({ label, value, crop, multiple = false, onUpload }: { label: string; value: string; crop: CropPreset; multiple?: boolean; onUpload: (file: File) => Promise<void> }) {
   const [uploading, setUploading] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [error, setError] = useState("");
   const images = value.split(",").map((item) => item.trim()).filter(Boolean);
 
-  const handleFiles = async (files: FileList | null) => {
+  const handleFiles = (files: FileList | null) => {
     if (!files?.length) return;
+    const imageFiles = Array.from(files).filter((file) => file.type.startsWith("image/"));
+    setError(imageFiles.length === files.length ? "" : "Only image files can be uploaded.");
+    setPendingFiles((current) => [...current, ...(multiple ? imageFiles : imageFiles.slice(0, 1))]);
+  };
+
+  const finishCurrent = () => setPendingFiles((current) => current.slice(1));
+
+  const uploadCroppedImage = async (file: File) => {
     setUploading(true);
-    for (const file of Array.from(files)) await onUpload(file);
-    setUploading(false);
+    setError("");
+    try {
+      await onUpload(file);
+      finishCurrent();
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -643,18 +661,25 @@ function ImageDrop({ label, value, multiple = false, onUpload }: { label: string
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
-          void handleFiles(event.dataTransfer.files);
+          handleFiles(event.dataTransfer.files);
         }}
       >
-        {uploading ? "Uploading..." : "Upload Image or Drag & Drop"}
-        <input className="hidden" type="file" accept="image/*" multiple={multiple} onChange={(event) => void handleFiles(event.target.files)} />
+        {uploading ? "Uploading..." : `Upload & Crop (${crop.width} × ${crop.height}px)`}
+        <input className="hidden" type="file" accept="image/*" multiple={multiple} onChange={(event) => {
+          handleFiles(event.target.files);
+          event.currentTarget.value = "";
+        }} />
       </label>
+      {error ? <p className="mt-2 text-sm text-red-300">{error}</p> : null}
       {images.length ? (
         <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
           {images.map((image) => (
-            <img key={image} className="aspect-video rounded-md border border-white/10 object-cover" src={image} alt="" />
+            <img key={image} className="w-full rounded-md border border-white/10 object-cover" style={{ aspectRatio: crop.aspect }} src={image} alt="" />
           ))}
         </div>
+      ) : null}
+      {pendingFiles[0] ? (
+        <ImageCropDialog file={pendingFiles[0]} preset={crop} processing={uploading} onCancel={finishCurrent} onConfirm={uploadCroppedImage} />
       ) : null}
     </div>
   );

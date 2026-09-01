@@ -16,7 +16,8 @@
     "next": "^15.1.6",
     "ogl": "^1.0.11",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-easy-crop": "^6.2.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.7",
