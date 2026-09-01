@@ -42,7 +42,19 @@ async function adminRequest<T>(path: string, token: string, init: RequestInit = 
       ...(init.headers || {})
     }
   });
-  if (!response.ok) throw new Error((await response.text()) || "Request failed");
+  if (!response.ok) {
+    const rawError = await response.text();
+    let message = rawError;
+
+    try {
+      const parsed = JSON.parse(rawError) as { message?: string; hint?: string };
+      message = parsed.message ?? parsed.hint ?? rawError;
+    } catch {
+      // Non-JSON responses can be shown as-is.
+    }
+
+    throw new Error(message || "Request failed");
+  }
   if (response.status === 204) return null as T;
   return (await response.json()) as T;
 }

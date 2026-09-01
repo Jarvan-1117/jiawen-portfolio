@@ -81,6 +81,12 @@ alter table public.projects enable row level security;
 alter table public.site_content enable row level security;
 alter table public.contact_messages enable row level security;
 
+grant select on table public.projects to anon, authenticated;
+grant insert, update, delete on table public.projects to authenticated;
+
+grant select on table public.site_content to anon, authenticated;
+grant insert, update, delete on table public.site_content to authenticated;
+
 revoke all on table public.contact_messages from anon, authenticated;
 grant insert on table public.contact_messages to anon, authenticated;
 grant select, update, delete on table public.contact_messages to authenticated;
