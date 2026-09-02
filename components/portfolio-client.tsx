@@ -183,39 +183,23 @@ function Navigation({ githubUrl, linkedinUrl }: { githubUrl: string; linkedinUrl
 function ProjectCard({ project }: { project: Project }) {
   return (
     <FadeIn className="h-full">
-      <article className="group relative flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white p-4 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-accent/45 hover:shadow-glow dark:border-white/10 dark:bg-white/[0.04]">
+      <article className="group relative flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white p-3.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-accent/45 hover:shadow-glow dark:border-white/10 dark:bg-white/[0.04]">
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent via-neutral-400 to-transparent opacity-80" />
         {project.category || project.year ? (
-          <span className="mb-3 self-end rounded-full border border-neutral-200 px-2.5 py-1 text-[11px] font-medium leading-4 text-neutral-500 dark:border-white/10 dark:text-neutral-300">
+          <p className="mb-1.5 text-[11px] font-medium uppercase text-neutral-500 dark:text-neutral-400">
             {[project.category, project.year].filter(Boolean).join(" / ")}
-          </span>
+          </p>
         ) : null}
-        <h3 className="text-base font-semibold leading-snug text-neutral-950 dark:text-white">{project.title}</h3>
+        <h3 className="line-clamp-2 text-base font-semibold leading-snug text-neutral-950 dark:text-white">{project.title}</h3>
         {project.cover_image ? (
-          <img src={project.cover_image} alt="" className="mt-4 aspect-[16/9] w-full rounded-md object-cover opacity-90" />
+          <img src={project.cover_image} alt="" className="mt-2.5 h-24 w-full rounded-md object-cover opacity-90 xl:h-28" />
         ) : null}
-        <p className="mt-2 line-clamp-3 flex-1 text-xs leading-5 text-neutral-600 dark:text-neutral-300">{project.summary}</p>
-        <div className="mt-3 flex min-h-6 flex-wrap gap-1.5">
-          {project.tags.map((tag) => (
-            <span key={tag} className="rounded-md bg-neutral-100 px-2 py-1 text-[11px] font-medium text-neutral-700 dark:bg-white/[0.07] dark:text-neutral-200">
-              {tag}
-            </span>
-          ))}
-        </div>
-        <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-white/10">
-          <p className="line-clamp-1 text-xs text-neutral-600 dark:text-neutral-400">{project.techStack.join(" / ")}</p>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <p className="mt-2 line-clamp-2 flex-1 text-xs leading-5 text-neutral-600 dark:text-neutral-300">{project.summary}</p>
+        <div className="mt-2.5">
           {project.slug ? (
-            <a className="focus-ring inline-flex items-center gap-2 rounded-md bg-neutral-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-accent-dark dark:bg-white dark:text-neutral-950 dark:hover:bg-[#9ee7e5]" href={`/projects/${project.slug}`}>
-              View Case Study
+            <a className="focus-ring inline-flex items-center gap-1.5 rounded-md bg-neutral-950 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-accent-dark dark:bg-white dark:text-neutral-950 dark:hover:bg-[#9ee7e5]" href={`/projects/${project.slug}`}>
+              View Project
               <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-            </a>
-          ) : null}
-          {project.project_url ? (
-            <a className="focus-ring inline-flex items-center gap-2 rounded-md border border-neutral-300 px-3 py-2 text-xs font-medium text-neutral-700 transition hover:border-accent hover:text-accent-dark dark:border-white/15 dark:text-neutral-200 dark:hover:text-[#9ee7e5]" href={project.project_url} target="_blank" rel="noreferrer">
-              GitHub
-              <ExternalLink className="h-3.5 w-3.5" />
             </a>
           ) : null}
         </div>
@@ -421,7 +405,7 @@ export default function PortfolioClient({ initialData = defaultPortfolioData }: 
           </div>
         </section>
 
-        <section id="projects" className="flex min-h-[calc(100vh-4rem)] scroll-mt-16 items-center border-y border-neutral-200 bg-white/60 px-4 py-14 dark:border-white/10 dark:bg-white/[0.025] sm:px-6 lg:h-[calc(100vh-4rem)] lg:min-h-[760px] lg:overflow-hidden lg:px-8 lg:py-10">
+        <section id="projects" className="flex min-h-[calc(100svh-4rem)] scroll-mt-16 items-center border-y border-neutral-200 bg-white/60 px-4 py-10 dark:border-white/10 dark:bg-white/[0.025] sm:px-6 lg:px-8 lg:py-6">
           <div className="mx-auto w-full max-w-6xl">
             <SectionLabel eyebrow="Selected Projects" title={siteContent.projectsTitle} compact />
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2">
