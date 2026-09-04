@@ -463,6 +463,71 @@ set
   learned = 'Sparse and dense signals were complementary, but the error analysis also showed that fusion is not automatically best for every subset or cutoff. Retrieval conclusions should therefore state the evaluation population clearly and balance aggregate metrics with question-level failure analysis and computational cost.'
 where slug = 'hybrid-sparse-dense-retrieval-for-rag';
 
+update public.projects
+set
+  featured = false,
+  sort_order = case slug
+    when 'cardiovascular-disease-prediction' then 1
+    when 'sms-spam-classification' then 2
+    when 'handwritten-mathematical-symbol-recognition' then 3
+    when 'deep-learning-for-image-classification-object-detection' then 4
+    when 'smart-retail-checkout-system' then 5
+    when 'hybrid-sparse-dense-retrieval-for-rag' then 6
+    else sort_order
+  end
+where slug in (
+  'cardiovascular-disease-prediction',
+  'sms-spam-classification',
+  'handwritten-mathematical-symbol-recognition',
+  'deep-learning-for-image-classification-object-detection',
+  'smart-retail-checkout-system',
+  'hybrid-sparse-dense-retrieval-for-rag'
+);
+
+insert into public.projects (
+  title, slug, description, long_description, year, category, tags, tech_stack,
+  featured, visible, sort_order, problem, dataset, approach, models, evaluation, results, learned
+)
+values (
+  'T20 Cricket Win Probability & Net Win Contribution',
+  't20-cricket-win-probability-net-win-contribution',
+  'Built a leakage-safe ball-by-ball win-probability pipeline across 4,975 international T20 matches, then translated probability shifts into player-level Net Win Contribution.',
+  'An active sports analytics research project that models win probability after every recorded delivery in international T20 cricket and converts successive probability changes into a reproducible player contribution metric. The workflow spans data auditing, game-state and historical feature engineering, chronological model evaluation, Random Forest tuning, and numerically reconciled NWC attribution.',
+  '2026',
+  'Sports Analytics / Machine Learning / Research Project',
+  array['Research Project', 'Sports Analytics', 'Win Probability', 'Temporal Validation'],
+  array['Python', 'Pandas', 'Scikit-learn', 'Random Forest', 'Jupyter'],
+  true,
+  true,
+  0,
+  'Traditional aggregate cricket statistics do not capture how much a delivery changes a team''s chance of winning. The project therefore needs a leakage-safe probability model and a transparent method for attributing each probability change to the participating players.',
+  'The source contains 5,602 international T20 matches. After excluding D/L-affected games, ties, no-results, super overs, invalid outcomes, overlong innings, and inconsistent terminal states, the reproducible baseline retains 4,975 eligible matches and 1,156,215 recorded delivery events.',
+  'Reconstructed event order from the source stream, created post-delivery game-state features, and separated female/male and first-/second-innings data into four independent tracks. Added 25 player, team, venue, and recent-form predictors using only strictly earlier match dates, with a 10-match half-life for exponentially weighted team form. Complete matches and date groups remain intact in chronological 70%/15%/15% train, validation, and test splits.',
+  'Compared a naive training-prevalence baseline, L2 Logistic Regression, and Random Forest in each track. Random Forest hyperparameters were selected from eight candidates over three expanding chronological validation windows; all four final models use 500 trees, max_depth = 14, min_samples_leaf = 50, and max_features = 0.25.',
+  'Used log loss as the sole model-selection metric because the downstream contribution measure depends on probability quality rather than classification accuracy alone. Final test periods remained untouched until parameter selection was complete. NWC outputs were also checked with delivery-level zero-sum, match-level player-total, and innings telescoping reconciliation tests.',
+  'Random Forest achieved test log loss of 0.511 and 0.274 for female first and second innings, and 0.495 and 0.293 for male first and second innings, outperforming the corresponding naive and Logistic Regression alternatives. The attribution stage produced 1,156,215 delivery records, 102,924 player-match records, and 2,651 test-split player summaries, with reconciliation differences limited to floating-point precision.',
+  'The work reinforced the importance of temporal validation, strict prior-date feature construction, and probability-focused evaluation in sports modelling. NWC is intentionally presented as a model-dependent interaction attribution rather than a causal measure; fielder-level contribution remains outside the current scope because the source does not identify all fielders involved in dismissals.'
+)
+on conflict (slug) do update set
+  title = excluded.title,
+  description = excluded.description,
+  long_description = excluded.long_description,
+  year = excluded.year,
+  category = excluded.category,
+  tags = excluded.tags,
+  tech_stack = excluded.tech_stack,
+  project_url = null,
+  featured = excluded.featured,
+  visible = excluded.visible,
+  sort_order = excluded.sort_order,
+  problem = excluded.problem,
+  dataset = excluded.dataset,
+  approach = excluded.approach,
+  models = excluded.models,
+  evaluation = excluded.evaluation,
+  results = excluded.results,
+  learned = excluded.learned;
+
 insert into storage.buckets (id, name, public)
 values ('portfolio-images', 'portfolio-images', true)
 on conflict (id) do update set public = true;

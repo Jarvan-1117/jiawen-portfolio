@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
+import clsx from "clsx";
 import { getPublicProjectBySlug } from "@/lib/portfolio-content";
 
 type ProjectPageProps = {
@@ -55,7 +56,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <Link className="mb-10 inline-flex rounded-md text-sm font-medium text-[#9ee7e5] hover:text-white" href="/#projects">
           Back to projects
         </Link>
-        <div className="grid gap-8 lg:grid-cols-[1fr_0.78fr] lg:items-start">
+        <div className={clsx("grid gap-8", project.cover_image && "lg:grid-cols-[1fr_0.78fr] lg:items-start")}>
           <div>
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#69d6d4]">
               {project.category || "Project"} {project.year ? ` / ${project.year}` : ""}

@@ -122,6 +122,7 @@ export const defaultStructuredContent: StructuredSiteContent = {
 };
 
 const projectPriority = [
+  "T20 Cricket Win Probability & Net Win Contribution",
   "Cardiovascular Disease Prediction",
   "SMS Spam Classification",
   "Handwritten Mathematical Symbol Recognition",

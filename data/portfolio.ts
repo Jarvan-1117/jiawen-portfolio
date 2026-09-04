@@ -56,6 +56,37 @@ export const navItems = [
 
 export const projects: Project[] = [
   {
+    title: "T20 Cricket Win Probability & Net Win Contribution",
+    summary:
+      "Built a leakage-safe ball-by-ball win-probability pipeline across 4,975 international T20 matches, then translated probability shifts into player-level Net Win Contribution.",
+    long_description:
+      "An active sports analytics research project that models win probability after every recorded delivery in international T20 cricket and converts successive probability changes into a reproducible player contribution metric. The workflow spans data auditing, game-state and historical feature engineering, chronological model evaluation, Random Forest tuning, and numerically reconciled NWC attribution.",
+    year: "2026",
+    category: "Sports Analytics / Machine Learning / Research Project",
+    featured: true,
+    visible: true,
+    sort_order: 0,
+    techStack: ["Python", "Pandas", "Scikit-learn", "Random Forest", "Jupyter"],
+    tags: ["Research Project", "Sports Analytics", "Win Probability", "Temporal Validation"],
+    icon: "vision",
+    caseStudy: {
+      problem:
+        "Traditional aggregate cricket statistics do not capture how much a delivery changes a team's chance of winning. The project therefore needs a leakage-safe probability model and a transparent method for attributing each probability change to the participating players.",
+      dataset:
+        "The source contains 5,602 international T20 matches. After excluding D/L-affected games, ties, no-results, super overs, invalid outcomes, overlong innings, and inconsistent terminal states, the reproducible baseline retains 4,975 eligible matches and 1,156,215 recorded delivery events.",
+      approach:
+        "Reconstructed event order from the source stream, created post-delivery game-state features, and separated female/male and first-/second-innings data into four independent tracks. Added 25 player, team, venue, and recent-form predictors using only strictly earlier match dates, with a 10-match half-life for exponentially weighted team form. Complete matches and date groups remain intact in chronological 70%/15%/15% train, validation, and test splits.",
+      models:
+        "Compared a naive training-prevalence baseline, L2 Logistic Regression, and Random Forest in each track. Random Forest hyperparameters were selected from eight candidates over three expanding chronological validation windows; all four final models use 500 trees, max_depth = 14, min_samples_leaf = 50, and max_features = 0.25.",
+      evaluation:
+        "Used log loss as the sole model-selection metric because the downstream contribution measure depends on probability quality rather than classification accuracy alone. Final test periods remained untouched until parameter selection was complete. NWC outputs were also checked with delivery-level zero-sum, match-level player-total, and innings telescoping reconciliation tests.",
+      results:
+        "Random Forest achieved test log loss of 0.511 and 0.274 for female first and second innings, and 0.495 and 0.293 for male first and second innings, outperforming the corresponding naive and Logistic Regression alternatives. The attribution stage produced 1,156,215 delivery records, 102,924 player-match records, and 2,651 test-split player summaries, with reconciliation differences limited to floating-point precision.",
+      learned:
+        "The work reinforced the importance of temporal validation, strict prior-date feature construction, and probability-focused evaluation in sports modelling. NWC is intentionally presented as a model-dependent interaction attribution rather than a causal measure; fielder-level contribution remains outside the current scope because the source does not identify all fielders involved in dismissals."
+    }
+  },
+  {
     title: "Deep Learning for Image Classification & Object Detection",
     summary:
       "Developed four PyTorch computer-vision experiments across 10-class image classification and object detection; a customized ResNet18 reached 92.43% test accuracy and SSD300 achieved 90.50% detection accuracy at IoU 0.5.",

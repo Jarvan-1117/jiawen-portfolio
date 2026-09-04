@@ -180,9 +180,9 @@ function Navigation({ githubUrl, linkedinUrl }: { githubUrl: string; linkedinUrl
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, wide = false }: { project: Project; wide?: boolean }) {
   return (
-    <FadeIn className="h-full">
+    <FadeIn className={clsx("h-full", wide && "xl:col-span-2")}>
       <article className="group relative flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white p-3.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-accent/45 hover:shadow-glow dark:border-white/10 dark:bg-white/[0.04]">
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent via-neutral-400 to-transparent opacity-80" />
         {project.category || project.year ? (
@@ -408,9 +408,9 @@ export default function PortfolioClient({ initialData = defaultPortfolioData }: 
         <section id="projects" className="flex min-h-[calc(100svh-4rem)] scroll-mt-16 items-center border-y border-neutral-200 bg-white/60 px-4 py-10 dark:border-white/10 dark:bg-white/[0.025] sm:px-6 lg:px-8 lg:py-6">
           <div className="mx-auto w-full max-w-6xl">
             <SectionLabel eyebrow="Selected Projects" title={siteContent.projectsTitle} compact />
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2">
-              {projects.map((project) => (
-                <ProjectCard key={project.title} project={project} />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {projects.map((project, index) => (
+                <ProjectCard key={project.title} project={project} wide={index === 0 && projects.length % 4 === 3} />
               ))}
             </div>
           </div>
