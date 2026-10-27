@@ -34,6 +34,12 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .border-glow-card.lg\:hidden {
+    display: none;
+  }
+}
+
 .border-glow-card.nav-text-glow {
   border-color: transparent;
   background: transparent;

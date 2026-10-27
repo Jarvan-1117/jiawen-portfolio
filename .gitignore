@@ -7,4 +7,5 @@ dist
 *.log
 .pnpm-store
 tsconfig.tsbuildinfo
+/*report ai*.pdf
 npm

@@ -6,16 +6,28 @@ import {
   Database,
   Eye,
   GraduationCap,
+  Gamepad2,
   HeartPulse,
   MessageSquareText,
   Workflow
 } from "lucide-react";
 
 export const projectIcons = {
+  game: Gamepad2,
+  analytics: ChartNoAxesCombined,
   vision: Eye,
   symbols: Binary,
   healthcare: HeartPulse,
   nlp: MessageSquareText
+};
+
+export type ProjectFigure = {
+  src: string;
+  title: string;
+  alt: string;
+  caption: string;
+  width: number;
+  height: number;
 };
 
 export type Project = {
@@ -29,6 +41,8 @@ export type Project = {
   category?: string;
   cover_image?: string;
   gallery_images?: string[];
+  figures?: ProjectFigure[];
+  video?: { src: string; poster: string; title: string; description: string };
   project_url?: string;
   featured?: boolean;
   visible?: boolean;
@@ -43,7 +57,13 @@ export type Project = {
     models: string;
     evaluation: string;
     results: string;
+    prototype?: string;
+    verification?: string;
+    gameplay?: string;
+    contribution?: string;
+    credits?: string;
     learned: string;
+    limitations?: string;
   };
 };
 
@@ -56,34 +76,199 @@ export const navItems = [
 
 export const projects: Project[] = [
   {
-    title: "T20 Cricket Win Probability & Net Win Contribution",
+    title: "CricSee: T20 Cricket Analytics",
+    slug: "t20-cricket-win-probability-net-win-contribution",
     summary:
-      "Built a leakage-safe ball-by-ball win-probability pipeline across 4,975 international T20 matches, then translated probability shifts into player-level Net Win Contribution.",
+      "Developed CricSee for match replay, win-probability analysis and player contributions, supported by research on 1,521 T20I matches.",
     long_description:
-      "An active sports analytics research project that models win probability after every recorded delivery in international T20 cricket and converts successive probability changes into a reproducible player contribution metric. The workflow spans data auditing, game-state and historical feature engineering, chronological model evaluation, Random Forest tuning, and numerically reconciled NWC attribution.",
+      "An interactive T20 cricket prototype connecting match replay, estimated win probabilities and partial Net Win Contribution (NWC). Built with React, TypeScript and FastAPI, with player histories, data uploads, exports and match-grounded AI Q&A.",
     year: "2026",
-    category: "Sports Analytics / Machine Learning / Research Project",
+    category: "Sports Analytics / Research Project",
     featured: true,
     visible: true,
     sort_order: 0,
-    techStack: ["Python", "Pandas", "Scikit-learn", "Random Forest", "Jupyter"],
-    tags: ["Research Project", "Sports Analytics", "Win Probability", "Temporal Validation"],
+    techStack: ["Python", "Pandas", "Scikit-learn", "XGBoost", "React", "TypeScript", "FastAPI", "SQLite", "OpenAI API"],
+    tags: ["Research Project", "Sports Analytics", "Win Probability", "Player Contributions", "Chronological Validation", "Interactive Prototype"],
+    figures: [
+      {
+        src: "/projects/cricsee/recorded-event-replay.webp",
+        title: "Recorded-event replay",
+        alt: "CricSee replay interface with the selected South Africa-Pakistan match, score, win probability, partial contribution values and event playback controls.",
+        caption: "The replay keeps the selected event, score, estimated win probability and interval-level player allocations together. This is recorded-match analysis, not a live match feed.",
+        width: 2160,
+        height: 1500
+      },
+      {
+        src: "/projects/cricsee/linked-match-dashboard.webp",
+        title: "Linked match dashboard",
+        alt: "CricSee dashboard showing a scoring rhythm diagram, complementary team win-probability curves and player contribution bars.",
+        caption: "The retrospective dashboard links scoring rhythm, the full probability path, the selected event and partial player totals. Missing allocations remain distinct from zero.",
+        width: 2040,
+        height: 1952
+      },
+      {
+        src: "/projects/cricsee/player-history.webp",
+        title: "Player history and filters",
+        alt: "DA Miller's date-filtered CricSee history with batting statistics, contribution coverage and a separate unavailable bowling record.",
+        caption: "Player histories connect filtered matches with batting/bowling records, contribution coverage and replay links. Unavailable bowling values are not shown as measured zeros.",
+        width: 2040,
+        height: 1505
+      },
+      {
+        src: "/projects/cricsee/resource-comparison.webp",
+        title: "Did player resources improve prediction?",
+        alt: "Comparison of combined resource features against the state-and-team baseline, with all four Log Loss gain confidence intervals crossing zero.",
+        caption: "All four primary 95% intervals cross zero in the test comparison. The proposed resource features did not demonstrate a consistent predictive advantage.",
+        width: 1800,
+        height: 780
+      },
+      {
+        src: "/projects/cricsee/system-architecture.webp",
+        title: "CricSee system architecture",
+        alt: "CricSee architecture connecting the React and TypeScript interface, FastAPI services, separate data stores and analytical workers.",
+        caption: "Match views and replay connect to FastAPI services, versioned research exports, a Cricsheet library, uploads and analytical workers. Original architecture figure from the final report.",
+        width: 1378,
+        height: 1001
+      }
+    ],
     icon: "vision",
     caseStudy: {
       problem:
-        "Traditional aggregate cricket statistics do not capture how much a delivery changes a team's chance of winning. The project therefore needs a leakage-safe probability model and a transparent method for attributing each probability change to the participating players.",
+        "Test whether remaining batting and bowling resources improve win-probability estimates, then make the estimates and partial player contributions inspectable alongside recorded match events.",
       dataset:
-        "The source contains 5,602 international T20 matches. After excluding D/L-affected games, ties, no-results, super overs, invalid outcomes, overlong innings, and inconsistent terminal states, the reproducible baseline retains 4,975 eligible matches and 1,156,215 recorded delivery events.",
+        "Retained 1,521 eligible men's and women's T20I matches and 360,721 delivery events from 5,602 source matches. Chronological splits contain 1,065 training, 228 validation and 228 test matches. Research records remain separate from library updates and uploads.",
       approach:
-        "Reconstructed event order from the source stream, created post-delivery game-state features, and separated female/male and first-/second-innings data into four independent tracks. Added 25 player, team, venue, and recent-form predictors using only strictly earlier match dates, with a 10-match half-life for exponentially weighted team form. Complete matches and date groups remain intact in chronological 70%/15%/15% train, validation, and test splits.",
+        "Built pre-delivery features and strictly prior-date histories, then compared eight feature groups across four gender/innings subsets. Eligible probability changes are allocated to striker/bowler pairs; unsupported events and innings-boundary changes remain team residuals.",
       models:
-        "Compared a naive training-prevalence baseline, L2 Logistic Regression, and Random Forest in each track. Random Forest hyperparameters were selected from eight candidates over three expanding chronological validation windows; all four final models use 500 trees, max_depth = 14, min_samples_leaf = 50, and max_features = 0.25.",
+        "Compared Logistic Regression, Random Forest, HistGradientBoosting and XGBoost: 336 fitted candidates plus four constant baselines. Validation Log Loss selected one frozen configuration per subset, without refitting on combined training and validation data.",
       evaluation:
-        "Used log loss as the sole model-selection metric because the downstream contribution measure depends on probability quality rather than classification accuracy alone. Final test periods remained untouched until parameter selection was complete. NWC outputs were also checked with delivery-level zero-sum, match-level player-total, and innings telescoping reconciliation tests.",
+        "Assessed Log Loss, Brier Score, AUC and calibration. Used 2,000 paired whole-match bootstrap draws for resource comparisons, plus permutation importance and contribution-ledger reconciliation. Terminal adjustments are kept visible separately.",
       results:
-        "Random Forest achieved test log loss of 0.511 and 0.274 for female first and second innings, and 0.495 and 0.293 for male first and second innings, outperforming the corresponding naive and Logistic Regression alternatives. The attribution stage produced 1,156,215 delivery records, 102,924 player-match records, and 2,651 test-split player summaries, with reconciliation differences limited to floating-point precision.",
-      learned:
-        "The work reinforced the importance of temporal validation, strict prior-date feature construction, and probability-focused evaluation in sports modelling. NWC is intentionally presented as a model-dependent interaction attribution rather than a causal measure; fielder-level contribution remains outside the current scope because the source does not identify all fielders involved in dismissals."
+        "Resources showed no consistent test improvement; all four primary 95% intervals crossed zero. Selected-model Log Loss was 0.55663 / 0.33473 for women's first / second innings and 0.59701 / 0.36335 for men's. NWC allocated 48,469 of 53,850 test intervals (90.01%); 5,381 remained residuals, with closure error around 3.9e-16.",
+      verification:
+        "Passed 341 automated cases: 141 frontend and 200 backend tests. Browser checks covered event synchronisation, filtered histories and CSV/JSON exports. Six single-run questions checked selected AI behaviours, not general answer accuracy.",
+      learned: "",
+      limitations:
+        "The test cohort was inspected during development, so comparisons are exploratory rather than an untouched confirmation. NWC is partial and model-dependent, not causal; terminal closure can dominate totals. The prototype replays recorded matches, not a live feed. User studies, load testing and broader AI evaluation remain future work."
+    }
+  },
+  {
+    title: "Australian Trade & Petroleum Analytics",
+    slug: "australian-trade-petroleum-analytics",
+    summary:
+      "Built Excel-to-Tableau dashboards explaining Australian trade patterns, petroleum deficits and the uncertainty of a five-year import outlook.",
+    long_description:
+      "A visual analytics course project tracing Australian trade from national categories to petroleum imports and exports. Prepared data in Excel, built Tableau dashboards and a six-point Story, and checked forecasts against a simple baseline rather than presenting projections as certain outcomes.",
+    year: "2026",
+    category: "Data Analytics / BI",
+    techStack: ["Excel", "Tableau", "Data Preparation", "Data Visualisation", "Forecast Evaluation"],
+    tags: ["Course Project", "Excel", "Tableau", "Dashboard Design", "Forecast Evaluation"],
+    icon: "analytics",
+    figures: [
+      {
+        src: "/projects/australian-trade/petroleum-dashboard.webp",
+        title: "Petroleum trade dashboard",
+        alt: "Original Tableau dashboard with petroleum import/export values, trade deficits, annual growth and indexed growth from 2016 to 2025.",
+        caption: "Four coordinated views separate trade levels, deficits, annual changes and relative growth. Values retain the supplied dataset's '$ millions' unit; the two initial YoY values are unavailable, not zero.",
+        width: 2200,
+        height: 1520
+      },
+      {
+        src: "/projects/australian-trade/forecast-interval.webp",
+        title: "Forecast and uncertainty",
+        alt: "Native Tableau petroleum import forecast showing the 2016-2025 history, flat 2026-2030 forecast and widening 95 percent prediction interval.",
+        caption: "The native Tableau forecast retains its widening 95% prediction band. It uses only ten annual observations and carries a Poor quality label in the workbook; a flat centre does not imply a stable outlook.",
+        width: 1665,
+        height: 550
+      },
+      {
+        src: "/projects/australian-trade/policy-story.webp",
+        title: "From analysis to a monitoring reference",
+        alt: "Final Tableau Story point comparing the Tableau forecast, a recursive three-year moving-average forecast and the proposed 2025-based reference through 2030.",
+        caption: "The final point in a six-part Tableau Story compares forecasts with a 2025-based monitoring reference. Gaps from the reference are not estimated policy savings or a government commitment.",
+        width: 2200,
+        height: 1310
+      }
+    ],
+    caseStudy: {
+      problem:
+        "Investigate why an overall mineral-fuel trade surplus can coexist with a persistent petroleum deficit, and communicate the finding without confusing expenditure, physical demand and business profit.",
+      dataset:
+        "Used course-supplied 2016-2025 import and export data: 10 main categories, 67 subcategories and totals, reshaped into 1,560 records. Hierarchy levels stay separate to prevent double-counting. Original units and aggregation discrepancies are retained.",
+      approach:
+        "Prepared shares, year-on-year growth, trade balances, indexed growth and summary statistics in Excel. Built 19 Tableau worksheets, four main dashboards and a six-point Story connecting national structure, mineral fuels, petroleum and forecast uncertainty.",
+      models:
+        "Compared Tableau's native level-only exponential smoothing with a recursive three-year moving average proposed by ChatGPT and an unchanged-value baseline. The moving-average calculation is reproduced explicitly in Excel.",
+      evaluation:
+        "At a fixed 2023 origin, forecast 2024 and 2025 without updating with the first test actual. Checked absolute errors and MAE separately from native fitted diagnostics. The AI method was selected after seeing the full history, so this is retrospective validation.",
+      results:
+        "The 2025 fuel surplus was 86,923 while petroleum's deficit was 38,555, in the supplied '$ millions' unit. Two-year holdout MAE was 1,720.5 for Tableau, 4,890 for the moving average and 5,594.5 for the unchanged-value baseline. This limited test favours Tableau, not a general superiority claim.",
+      learned: "",
+      limitations:
+        "Ten annual observations and two holdout years limit forecasting evidence. Native forecast quality is Poor. Nominal trade values do not establish physical dependence, causal drivers or policy savings; currency and calendar/fiscal coverage are not explicitly confirmed in the teaching file."
+    }
+  },
+  {
+    title: "Wimbledon Finals & Player Performance",
+    slug: "wimbledon-finals-player-performance",
+    summary:
+      "Cleaned historical championship records and built Tableau views comparing title concentration, match characteristics and player performance.",
+    long_description:
+      "A visual analytics course project exploring Wimbledon championship records through three Tableau dashboards. Excel preparation separates match-level and player-level data, while the visual analysis compares countries, match characteristics and different definitions of player success.",
+    year: "2026",
+    category: "Data Analytics / Visualisation",
+    techStack: ["Excel", "Tableau", "Data Cleaning", "Data Modelling", "Visual Analytics"],
+    tags: ["Course Project", "Excel", "Tableau", "Visual Analytics", "Sports Analytics"],
+    icon: "analytics",
+    figures: [
+      {
+        src: "/projects/wimbledon/titles-by-country-player.webp",
+        title: "Where titles are concentrated",
+        alt: "Original Tableau treemap grouping Wimbledon title records by country and player, with rectangle area proportional to the title count.",
+        caption: "Rectangle area represents title count for each country-player combination in the supplied dataset. Historical country labels are retained; small rectangles rely on tooltips in the original Tableau workbook.",
+        width: 1482,
+        height: 1187
+      },
+      {
+        src: "/projects/wimbledon/player-profiles.webp",
+        title: "Four measures, different player profiles",
+        alt: "Tableau parallel coordinates comparing 17 five-title players across scaled title counts, final title conversion, aggregate game win share and straight-set title share.",
+        caption: "The 17 five-title players are compared across titles scaled by nine, final conversion, pooled game win share and straight-set title share. Blue indicates men and orange women. No combined ranking is calculated.",
+        width: 1807,
+        height: 1155
+      },
+      {
+        src: "/projects/wimbledon/player-game-share.webp",
+        title: "Game win share across winning and losing finals",
+        alt: "Tableau dot plot comparing aggregate game win share for six men's and eleven women's players with at least five titles in the supplied dataset.",
+        caption: "Game win share pools games from both won and lost eligible finals, rather than averaging match percentages. It is distinct from title count, final conversion and career match win rate.",
+        width: 1063,
+        height: 821
+      },
+      {
+        src: "/projects/wimbledon/duration-and-games.webp",
+        title: "Match length and missing-data coverage",
+        alt: "Scatter plot of 209 score- and duration-eligible Wimbledon finals, with total games on the horizontal axis and recorded minutes on the vertical axis.",
+        caption: "Each point is a final with eligible scores and a known duration. Blue indicates men and orange women. The association between games and minutes is descriptive; formats and uneven historical coverage limit comparisons.",
+        width: 1198,
+        height: 1180
+      }
+    ],
+    caseStudy: {
+      problem:
+        "Compare historical title patterns and player performance without treating title count, final conversion and the proportion of games won as interchangeable measures.",
+      dataset:
+        "Prepared 271 championship records from the supplied 1877-2026 teaching dataset: 139 men's and 132 women's records. Separate tables hold 542 finalist appearances and 210 reconciled player identities. Score analysis uses 268 eligible finals; 209 completed matches have recorded durations.",
+      approach:
+        "Reconciled player names, corrected four score inconsistencies and documented disputed or incomplete records. Kept unplayed sets and missing minutes distinct from genuine zeros. Built 11 Tableau worksheets and three dashboards for countries/history, top-player profiles and match analysis.",
+      models: "",
+      evaluation:
+        "Defined the population and denominator for each measure before comparison. Higher-seed analysis uses 165 completed finals with valid unequal seeds. Player game share pools games across eligible appearances; the five-title cohort contains 17 players. Tableau filters and a Match ID action connect overview charts to individual records.",
+      results:
+        "In this dataset, the United States, United Kingdom and Australia account for 190 of 271 titles (70.1%). Higher-seeded finalists won 115 of 165 eligible finals (69.7%). Title count and game-share measures identify different leaders, supporting multi-metric comparisons rather than a single best-player score.",
+      learned: "",
+      limitations:
+        "Findings describe the supplied dataset, not a fully audited historical archive. Some recent records and original durations remain unverified; duration coverage is uneven. Changing scoring rules, historical rounds and match formats prevent causal interpretations or simple claims about player ability. Static images do not reproduce the original workbook's filters and tooltips."
     }
   },
   {
@@ -289,35 +474,93 @@ export const projects: Project[] = [
       learned:
         "Sparse and dense signals were complementary, but the error analysis also showed that fusion is not automatically best for every subset or cutoff. Retrieval conclusions should therefore state the evaluation population clearly and balance aggregate metrics with question-level failure analysis and computational cost."
     }
+  },
+  {
+    title: "Kitty & Puppy Park",
+    slug: "kitty-puppy-park",
+    summary:
+      "Extended a Unity 2D maze-game assignment with a five-minute survival mode, score-triggered power-ups and custom pixel art.",
+    long_description:
+      "A Unity 2D and C# personal project extending a university PacStudent maze-game assignment. I developed a classic collection level and a five-minute survival challenge with escalating pursuit, score-triggered power-ups and custom pixel art.",
+    category: "Game Development / Personal Project",
+    techStack: ["Unity 2D", "C#", "Piskel", "Pixel Animation", "WebGL"],
+    tags: ["Personal Project", "Unity 2D", "C#", "Pixel Art", "WebGL"],
+    icon: "game",
+    video: {
+      src: "/videos/kitty-puppy-park/gameplay.mp4",
+      poster: "/projects/kitty-puppy-park/menu.webp",
+      title: "Menu and survival gameplay",
+      description: "Recorded demonstration of the main menu and survival level, including enemy reinforcements and power-ups. Original game music and sound effects are retained in the video."
+    },
+    figures: [
+      {
+        src: "/projects/kitty-puppy-park/survival.webp",
+        title: "Five-minute survival challenge",
+        alt: "Pixel-art survival maze with the cat, pursuing dogs, food, a score display, lives and a countdown timer.",
+        caption: "The second level uses a larger custom maze, one starting life, replenishing food and score-triggered power-ups. Enemy reinforcements increase pressure as the round progresses.",
+        width: 1280,
+        height: 720
+      },
+      {
+        src: "/projects/kitty-puppy-park/power-ups.webp",
+        title: "Counterplay under increasing pressure",
+        alt: "A later survival-game frame with more pursuing dogs and visible laser, fish and freeze timers in the HUD.",
+        caption: "Lasers, radial shots, freeze and extra lives give the player ways to respond. Movement and music accelerate, while survival and power-up durations remain fixed.",
+        width: 1280,
+        height: 720
+      }
+    ],
+    caseStudy: {
+      problem:
+        "Extend a classic maze-collection exercise into a survival game where the player can plan routes, take risks for score and use earned tools to create room to escape.",
+      dataset: "",
+      gameplay:
+        "The classic level combines food collection, pursuing dogs and temporary fish-powered counterattacks. The survival level lasts five minutes: dogs continually reinforce from the centre and return after defeat. Scoring earns persistent power-up pickups, creating a collection-risk-counterattack loop.",
+      approach:
+        "Implemented grid movement, directional animation and enemy chase, fear, defeat-return and respawn states. Built generated and manually arranged mazes, including periodically changing passages with advance warnings. Created pixel assets and frame-by-frame animations in Piskel.",
+      models: "",
+      evaluation:
+        "Playtesting showed that long corridors and sparse supplies made survival too passive. Added bypass routes and more food, tied strong item spawns to score, and removed pickup expiry. Moved spawn/respawn to the upper-left area and added respawn protection to reduce unpredictable failures.",
+      results:
+        "Completed menus, level selection, countdowns, game-over screens, saved high scores, retry and menu-return flows, plus a WebGL demo export. Combat includes wall-blocked lasers, wall-piercing radial shots, temporary freeze and extra lives. Food respawns after collection and fish refreshes at random positions.",
+      contribution:
+        "I designed the gameplay and levels, created pixel assets, assembled Unity scenes and organised playtest feedback. AI supported parts of code implementation, troubleshooting and tool operations.",
+      credits:
+        "Music and some sound effects use third-party licensed resources. Their sources and attribution are retained in the game project; the demonstration preserves that original soundtrack.",
+      learned:
+        "Adding mechanics alone did not improve the experience. Movement speed, escape routes, replenishment and recovery after failure needed to be tuned together so the challenge applied pressure while leaving players meaningful responses."
+    }
   }
 ];
 
 export const skillGroups = [
   {
-    title: "Data Analytics & Programming",
+    title: "Data Analytics & BI",
     icon: Database,
     skills: [
       "Python",
       "SQL",
       "Pandas",
       "NumPy",
+      "Excel",
+      "Tableau",
       "Data Cleaning",
       "Exploratory Data Analysis",
       "Matplotlib",
-      "Seaborn",
-      "Jupyter Notebook"
+      "Seaborn"
     ]
   },
   {
-    title: "Machine Learning",
+    title: "Machine Learning & Evaluation",
     icon: BrainCircuit,
     skills: [
       "Scikit-learn",
-      "Supervised Learning",
-      "Classification",
+      "XGBoost",
       "Feature Engineering",
       "Cross-validation",
-      "Model Evaluation",
+      "Chronological Validation",
+      "Match-level Bootstrap",
+      "Calibration Diagnostics",
       "Error Analysis"
     ]
   },
@@ -326,7 +569,7 @@ export const skillGroups = [
     icon: Eye,
     skills: [
       "PyTorch",
-      "CNN",
+      "TorchVision",
       "ResNet18",
       "Faster R-CNN",
       "SSD300",
@@ -338,7 +581,17 @@ export const skillGroups = [
   {
     title: "Tools & Languages",
     icon: Code2,
-    skills: ["Git", "GitHub", "VS Code", "English", "Mandarin Chinese"]
+    skills: [
+      "React",
+      "TypeScript",
+      "FastAPI",
+      "OpenAI API Integration",
+      "Git / GitHub",
+      "Linux / Unix",
+      "Jupyter / Colab",
+      "English",
+      "Mandarin Chinese"
+    ]
   }
 ];
 

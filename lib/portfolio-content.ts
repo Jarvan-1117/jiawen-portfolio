@@ -102,11 +102,11 @@ export const defaultSiteContent: SiteContent = {
     "I am currently studying the Master of Information Technology at the University of Technology Sydney, focusing on data analytics and applied machine learning. My biotechnology background also gives me a useful foundation for working with healthcare and scientific data.",
   aboutBody2:
     "I enjoy the full data workflow: cleaning and exploring data, engineering useful features, evaluating models, and communicating results clearly enough to support the next decision.",
-  projectsTitle: "Selected data analytics and machine learning projects, from data preparation and exploration to evaluated models.",
+  projectsTitle: "Data analytics and machine learning projects.",
   skillsTitle: "Data analysis, modelling, and the tools behind the workflow.",
   educationTitle: "Combining data and technology training with a foundation in biotechnology.",
   contactTitle: "Let's connect about data analytics and applied machine learning.",
-  contactEmail: "",
+  contactEmail: "jiawen.wang1117@gmail.com",
   location: "Sydney, Australia",
   githubUrl: "https://github.com/Jarvan-1117",
   linkedinUrl: "https://www.linkedin.com/in/jiawen-wang1117/",
@@ -122,20 +122,23 @@ export const defaultStructuredContent: StructuredSiteContent = {
 };
 
 const projectPriority = [
-  "T20 Cricket Win Probability & Net Win Contribution",
+  "CricSee: T20 Cricket Analytics",
+  "Australian Trade & Petroleum Analytics",
+  "Wimbledon Finals & Player Performance",
   "Cardiovascular Disease Prediction",
   "SMS Spam Classification",
   "Handwritten Mathematical Symbol Recognition",
   "Deep Learning for Image Classification & Object Detection",
   "Smart Retail Checkout System",
-  "Hybrid Sparse-Dense Retrieval for RAG"
+  "Hybrid Sparse-Dense Retrieval for RAG",
+  "Kitty & Puppy Park"
 ];
 
 export const defaultPortfolioData: PublicPortfolioData = {
   siteContent: defaultSiteContent,
   projects: [...fallbackProjects].sort((a, b) => projectPriority.indexOf(a.title) - projectPriority.indexOf(b.title)).map((project, index) => ({
     ...project,
-    slug: slugify(project.title),
+    slug: project.slug || slugify(project.title),
     visible: true,
     featured: index === 0,
     sort_order: index
@@ -258,39 +261,10 @@ function pickProjectIcon(category: string | null, tags: string[]) {
 }
 
 export async function getPublicPortfolioData(): Promise<PublicPortfolioData> {
-  if (!isSupabaseConfigured()) return defaultPortfolioData;
-
-  try {
-    const [projectRows, contentRows] = await Promise.all([
-      supabaseRest<ProjectRow[]>("projects?select=*&visible=eq.true&order=sort_order.asc"),
-      supabaseRest<SiteContentRow[]>("site_content?select=section,key,value")
-    ]);
-
-    const structured = structuredContentFromRows(contentRows);
-
-    return {
-      ...defaultPortfolioData,
-      siteContent: contentRowsToMap(contentRows),
-      projects: projectRows.map(projectRowToProject),
-      focusAreas: structured.focusAreas,
-      quickStats: quickStats.map((stat, index) => ({ ...stat, ...(structured.quickStats[index] ?? {}) })),
-      skillGroups: skillGroups.map((group, index) => ({ ...group, ...(structured.skillGroups[index] ?? {}) })),
-      education: structured.education
-    };
-  } catch {
-    return defaultPortfolioData;
-  }
+  // Public pages use local content independently of the retired Supabase CMS.
+  return defaultPortfolioData;
 }
 
 export async function getPublicProjectBySlug(slug: string): Promise<Project | null> {
-  if (!isSupabaseConfigured()) {
-    return defaultPortfolioData.projects.find((project) => project.slug === slug) ?? null;
-  }
-
-  try {
-    const rows = await supabaseRest<ProjectRow[]>(`projects?select=*&slug=eq.${encodeURIComponent(slug)}&visible=eq.true&limit=1`);
-    return rows[0] ? projectRowToProject(rows[0]) : null;
-  } catch {
-    return defaultPortfolioData.projects.find((project) => project.slug === slug) ?? null;
-  }
+  return defaultPortfolioData.projects.find((project) => project.slug === slug) ?? null;
 }

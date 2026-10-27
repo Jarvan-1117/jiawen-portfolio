@@ -1,0 +1,34 @@
+[
+  {
+    "name": "idle",
+    "source": "Shiba_Inu_sitting_and_blinking_1080p_20261025082739.mp4",
+    "trim_start_seconds": 0,
+    "output": "idle.mp4",
+    "bytes": 665643,
+    "audio": false
+  },
+  {
+    "name": "entrance",
+    "source": "Man_catching_dog_on_sofa_1080p_20261025084330.mp4",
+    "trim_start_seconds": 1.5,
+    "output": "entrance.mp4",
+    "bytes": 7085306,
+    "audio": false
+  },
+  {
+    "name": "day",
+    "source": "Man_stroking_dog_on_sofa_20261025083854.realesrgan.1.mkv",
+    "trim_start_seconds": 0,
+    "output": "day.mp4",
+    "bytes": 2912687,
+    "audio": false
+  },
+  {
+    "name": "night",
+    "source": "Man_and_dog_sleeping_20261025083823.realesrgan.mkv",
+    "trim_start_seconds": 0,
+    "output": "night.mp4",
+    "bytes": 2548443,
+    "audio": false
+  }
+]

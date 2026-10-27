@@ -4,6 +4,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import "@/components/border-glow.css";
 import "@/components/swarm-cursor.css";
+import "@/components/portfolio-entrance.css";
+import "@/components/portfolio-theme.css";
 
 const inter = Inter({
   subsets: ["latin"],
